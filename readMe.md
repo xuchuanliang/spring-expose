@@ -1,0 +1,25 @@
+#第二部分：spring的IOC容器
+##第二章：IOC的基本概念
+- 三种依赖注入的方式：构造方法注入、setter方法注入、接口注入
+
+##第三章：掌管大局的IOC Service Provider
+- IOC Service Provider是一个抽象出来的概念，它可以指代任何将IOC场景中的业务对象绑定到一起的实现方式。
+- IOC Service Provider的职责是业务对象的构建管理和业务对象间的依赖绑定
+- IOC Service Provider产品使用的注册对象管理信息的方式主要有三种：直接编码方式、配置文件方式、元数据方式
+
+##第四章：spring的IOC容器之BeanFactory
+### 4.2BeanFactory的对象注册和与依赖绑定关系
+#### 4.2.1 直接编码的方式
+>Beanfactory只是一个接口，我们最终需要一个该接口的实现类来进行实际的Bean的管理，DefaultListableBeanFactory就是一个比较通用的BeanFactory实现类，
+DefaultListableBeanFactory除了间接地实现了BeanFactory接口，还实现了BeanDefinitionRegistry接口，该接口才是在BeanFactory的实现中担当Bean注册管理的角色，。
+基本上，BeanFactory接口只定义如何访问容器内管理Bean的方法，各个BeanFactory的具体实现类负责具体Bean的注册以及管理工作。BeanDefinitionRegistry接口定义了
+抽象了Bean的注册逻辑。通常情况下，具体的BeanFactory实现类会实现这个接口来管理Bean的注册。  
+- BeanFactory若比作图书馆，则BeanDefinitionRegistry则就像图书馆的书架，所有的书都是放在书架上，虽然借书和还书都是跟图书馆打交道
+>每一个受管的对象，在容器中都会有一个BeanDefinition实例与之相对应，该BeanDefinition的实例负责保存对象的所有必要信息，包含对应的class类型、是否是抽象类、
+构造方法参数以及其他属性等。当客户端向BeanFactory请求相应的对象时，BeanFactory会通过这些信息为客户端返回一个完备可用的对象实例。RootBeanDefinition和ChildBeanDefinition
+是BeanDefinition的两个主要实现类。
+#### 4.2.2 外部配置文件的方式
+>采用外部配置文件时，Spring的IOC容器有一个统一的处理方式。通常情况下，需要根据不同的外部配置文件格式，给出相应的BeanDefinitionReader实现类，由BeanDefinitionReader
+的相应实现类将相应的配置文件内容读取并映射到BeanDefinition，然后将映射后的BeanDefinition注册到一个BeanDefinitionRegistry，之后，BeanDefinitionRegistry
+即完成Bean的注册和加载。当然，大部分工作，包括解析文件格式、装配BeanDefinition之类的工作，都是由BeanDefinitionReader的相应实现类来做的，BeanDefinitionRegister
+只不过负责保管而已。
