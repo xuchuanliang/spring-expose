@@ -6,12 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="spring-boot-source" />
         <module name="springIoc" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="springExpose" target="1.5" />
-      <module name="springIoc" target="1.5" />
+      <module name="spring-boot-source" target="1.8" />
+      <module name="spring-expose" target="1.6" />
+      <module name="springIoc" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>
