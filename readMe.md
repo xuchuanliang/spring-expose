@@ -24,3 +24,75 @@ DefaultListableBeanFactory除了间接地实现了BeanFactory接口，还实现�
 即完成Bean的注册和加载。当然，大部分工作，包括解析文件格式、装配BeanDefinition之类的工作，都是由BeanDefinitionReader的相应实现类来做的，BeanDefinitionRegister
 只不过负责保管而已。
 
+### 4.4 容器背后的秘密
+#### 4.4.1战略性观望
+- Spring的IOC所起的作用：Spring的IOC容器会以某种方式加载Configuration Metadata（配置文件）,然后根据这些信息绑定整个系统的对象，最终组装成一个可用的基于轻量级容器的应用系统。
+- Spring的IOC容器基本划分两个阶段，即容器启动阶段和Bean实例化阶段。
+> Spring的IOC容器启动阶段：加载配置、分析配置信息、装备到BeanDefinition、其他后序处理；
+Bean实例化阶段：实例化对象、装配依赖、生命周期回调、对象其他处理、注册会调接口；
+- 容器启动阶段
+> 容器启动开始，首先会通过某种途径加载Configuration MetaData。除了代码方式比较直接，在大部分情况下，容器需要依赖某些工具类（BeanDefinitionReader）对加载的Configuration MetaData进行解析和分析，并
+将分析后的信息编组为相应的BeanDefinition，最后把这些保存Bean定义必要信息的BeanDefinition，注册到相应的BeanDefinitionRegistry，这样容器的启动工作就完成了。这一阶段是准备性的，重点侧重于对象信息的收集、验证性工作、辅助性工作。
+- Bean实例化阶段
+> 经过第一个阶段，现在所有的Bean定义都通过BeanDefinition的方式注册到了BeanDefinitionRegistry中。当某个请求方通过容器的getBean方法明确请求某个对象，或者因依赖关系容器需要隐式的调用getBean方法时，就会触发第二阶段的活动。
+该阶段，容器会首先检查所请求的对象之前是否已经初始化。如果没有，则会根据注册的BeanDefinition所提供的信息实例化被请求对象，并为其注入依赖。  
+>Spring提供一共叫做BeanFactoryPostProcessor的容器扩展机制，允许我们在容器实例化相应对象之前，对注册到容器的BeanDefinition所保存的信息做相应的修改。  
+
+>PropertyPlaceholderConfigurer不单会从其配置的properties文件中加载配置项，同时还会检查Java的System类中的Properties  
+>PropertyOverrideConfigurer可以对容器中配置的任何想要处理的bean定义的property信息进行覆盖替换  
+
+>配 置 在 properties 文 件 中 的 信 息 通 常 都 以 明 文 表 示 ， PropertyOverrideConfigurer的 父 类PropertyResourceConfigurer提供了一个protected类型的方法convertPropertyValue，允许子类
+ 覆盖这个方法对相应的配置项进行转换，如对加密后的字符串解密之后再覆盖到相应的bean定义中。当然，既然PropertyPlaceholderConfigurer也同样继承了PropertyResourceConfigurer，我们
+ 也可以针对PropertyPlaceholderConfigurer应用类似的功能。  
+ >CustomEditorConfigurer：完成这种由字符串到具体对象的转换（不管这个转换工作最终由谁来做），都需要这种转换规则相关的信息，而CustomEditorConfigurer就是帮助我们传达类似信息的。
+ 
+ ###了解Bean的一生
+ >我们已经可以通过使用BeanFactoryPostProcessor来敢于容器启动阶段  
+ > 容器启动后，并不会马上就实例化相应的Bean定义，容器现在仅仅拥有所有对象的BeanDefinition来保存实例化阶段将要用的必要信息。只有当请求通过BeanFactory的getBean()方法来请求某个对象的实例的时候，才有可能触发
+ Bean实例化阶段的活动。BeanFactory的getBean可以被客户端显示调用，也可以在容器内部隐式的调用。  
+ >>隐式调用一般有如下两种情况：  
+ >>>对于BeanFactory而言，对象实例化默认采用延迟初始化。  
+ >>>ApplicationContext启动之后会实例化所有的Bean定义。    <br/>
+
+>getBean()第一次被调用时，不管是显示还是隐式的，Bean的实例化阶段的活动会被触发。第二次调用时会直接返回容器中第一次实例化的缓存（property类型bean除外）  
+>当getBean()方法内部发现该bean定义之前还没有被实例化之后，会通过createBean()方法进行具体对象实例化
+>>实例化过程：实例化Bean对象->设置对象属性->检查Aware相关接口并设置相关依赖->BeanPostProcessor前置处理->检查是否是InitializingBean以决定是否调用afterPropertiesSet方法->检查是否配置自定义的init-method->BeanPostProcessor后置处理
+->注册必要的Destrutcion相关回调接口->使用中->是否实现DisposableBean接口->是否配置有自定义的destroy方法
+
+- bean的实例化与BeanWrapper  
+>>容器在内部实现的时候，采用策略模式来决定使用何种方式初始化bean实例。通常可以使用反射或者CGLIB动态字节码来生成初始化相应的bean实例或者动态生成其子类。
+org.springframework.beans.factory.support.InstantiationStrategy定义是实例化策略的抽象接口，其直接子类SimpleInstantiationStrategy实现了简单的对象实例化功能，可以通过反射来实例化对象实例，
+CglibSubclassingInstantiationStrategy继承了SimpleInstantiationStrategy的以反射方式实例化对象的功能，并且通过CGLIB的动态字节码生成功能，该策略实现类可以动态生成某个类的子类，
+进而满足了方法注入所需的对象实例化需求。默认情况下，容器内部采用的是CglibSubclassingInstantiationStrategy。   
+>容器根据BeanDefinition取得实例化信息，通过SimpleInstantiationStrategy或CglibSubclassingInstantiationStrategy返回实例化对象，但是返回的不是构造完成的对象实例，而是对象的包装类：BeanWrapper，主要是为了方便设置对象属性。  
+
+- 各色的Aware接口  
+>当对象实例化完成并且相关属性以及依赖设置完成之后， Spring容器会检查当前对象实例是否实现了一系列的以Aware命名结尾的接口定义。如果是，则将这些Aware接口定义中规定的依赖注入给当前对象实例  
+>>BeanFactory的Aware接口有以下几种：  
+>>>org.springframework.beans.factory.BeanNameAware。如果Spring容器检测到当前对象实例实现了该接口，会将该对象实例的bean定义对应的beanName设置到当前对象实例。  
+>>>org.springframework.beans.factory.BeanClassLoaderAware。如果容器检测到当前对象实例实现了该接口，会将对应加载当前bean的Classloader注入当前对象实例。默认会使用加载org.springframework.util.ClassUtils类的Classloader。  
+>>>org.springframework.beans.factory.BeanFactoryAware。如果对象声明实现了BeanFactoryAware接口， BeanFactory容器会将自身设置到当前对象实例。这样，当前对象实例就拥有了一个BeanFactory容器的引用，并且可以对这个容器内允许访问的对象按照需要进行访问。  
+>>ApplicationContext的Aware接口有以下几种：  
+>>>org.springframework.context.ResourceLoaderAware 。 ApplicationContext 实 现 了Spring的ResourceLoader接口（后面会提及详细信息）。当容器检测到当前对象实例实现了ResourceLoaderAware接口之后，
+会将当前ApplicationContext自身设置到对象实例，这样当前对象实例就拥有了其所在ApplicationContext容器的一个引用。  
+>>>org.springframework.context.ApplicationEventPublisherAware 。 ApplicationContext还实现了ApplicationEventPublisher接口，这样，它就可以作为ApplicationEventPublisher来使用。
+所以，当前ApplicationContext容器如果检测到当前实例化的对象实例声明了ApplicationEventPublisherAware接口，则会将自身注入当前对象。  
+>>>org.springframework.context.MessageSourceAware。ApplicationContext通过MessageSource接口提供国际化的信息支持，即I18n（Internationalization）。它自身就实现了MessageSource接口，
+所以当检测到当前对象实例实现了MessageSourceAware接口，则会将自身注入所以当检测到当前对象实例实现了MessageSourceAware接口，则会将自身注入  
+>>>org.springframework.context.ApplicationContextAware。 如果ApplicationContext容器检测到当前对象实现了ApplicationContextAware接口，则会将自身注入当前对象实例。
+
+- BeanPostProcessor  
+>>BeanPostProcessor是存在于对象实例化阶段，BeanFactoryPostProcessor则是存在于容器启动阶段
+>>>通常比较常见的使用BeanPostProcessor的场景，是处理标记接口实现类，或者为当前对象提供代理实现。ApplicationContext对应的那些Aware接口实际上就是通过BeanPostProcessor的方式进行处理的。
+当ApplicationContext中每个对象的实例化过程走到BeanPostProcessor前置处理这一步时， ApplicationContext容器会检测到之前注册到容器的ApplicationContextAwareProcessor这个BeanPostProcessor的实现类，
+然后就会调用其postProcessBeforeInitialization()方法，检查并设置Aware相关依赖
+
+- InitializingBean和init-method
+ >org.springframework.beans.factory.InitializingBean 该接口的作用是在对象实例化过程吊用过"BeanPostProcessor的前置处理"之后，会接着检测当前对象是否实现了InitializingBean接口，如果是，则会调用
+ afterPropertiesSet()方法进一步调整对象实例的状态。Spring还提供了另一种方式来指定自定义的对象初始化操作，使用<bean>的init-method属性
+ 
+ - 5. DisposableBean与destroy-method
+ 
+ - 小结：Spring的IoC容器主要有两种，即BeanFactory和ApplicationContext。
+ 
+ ## 第五章：Spring IOC容器：ApplicationContext
