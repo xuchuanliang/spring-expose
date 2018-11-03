@@ -54,5 +54,24 @@ DefaultResourceLoader的getResourceByPath(String)方法默认实现逻辑是，�
 >org.springframework.core.io.support.ResourcePatternResolver ——批量查找的ResourceLoader
 >>ResourcePatternResolver扩展了ResourceLoader，不止可以加载单个资源，还可以根据指定的资源路径匹配模式，每次返回多个Resource实例。  
 >>ResourcePatternResolver的实现类org.springframework.core.io.support.PathMatchingResourcePatternResolver
--- 2018年11月1日 21:04:37 该看5.2国际化信息支持
+
+### 5.1 国际化信息支持
+- 在java的国际化信息处理，主要涉及lianggelei：java.util.Locale和java.util.ResourceBundle
+>不同的locale代表不同的国家和地区  
+>ResourceBundle用来保存某个特定的Locale信息。通常，ResourceBundle管理一组信息序列，所有的信息序列有统一的一个basename，然后特定的Locale信息，可以根据basename后追加的语言或者地区代码来区分，比如，我们
+用一组properties文件分别来标识不同国家和地区的信息，可以像接下来命名响应的properties文件：message.properties,message_zh.properties,messages_zh_CN.properties,messages_en.properties,messages_en_US.properties.
+其中，文件名中的message部分称作ResourceBundle将加载资源的basename，其他语言或地区的资源在basename的基础上追加Locale特定代码。
+>>每个资源文件中都有相同的键来标识具体资源条目，但每个资源内部对应相同键的资源条目内容，则根据Locale的不同而不同。如：
+ ```
+# messages_zh_CN.properties文件中
+menu.file=文件({0})
+menu.edit=编辑
+...
+# messages_en_US.properties文件中
+menu.file=File({0})
+menu.edit=Edit
+....
+````
+>有了ResourceBundle对应的资源文件之后，我们就可以通过ResourceBundle的getBundle(String basename,Locale locale)方法取得不同的Local对应的ResourceBundle，然后根据资源的键取得相应Locale的资源条目内容。
+通过结合ResourceBundle和Locale，就能实现应用程序的国际化支持。
 
