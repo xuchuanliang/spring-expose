@@ -73,5 +73,18 @@ menu.edit=Edit
 ....
 ````
 >有了ResourceBundle对应的资源文件之后，我们就可以通过ResourceBundle的getBundle(String basename,Locale locale)方法取得不同的Local对应的ResourceBundle，然后根据资源的键取得相应Locale的资源条目内容。
-通过结合ResourceBundle和Locale，就能实现应用程序的国际化支持。
+通过结合ResourceBundle和Locale，就能实现应用程序的国际化支持。  
+>Spring在javaSE的基础上进一步抽象了国际化信息访问接口，org.springframework.context.MessageSource，其中接口中定义的方法，用户访问国际化资源，ApplicationContext同时也实现了MessageSource接口，
+ApplicationContext将委派容器中一个名称为messageSource的MessageSource接口实现来完成MessageSource应该完成的职责。如果找不到这样一个名字的MessageSource实现， 
+ApplicationContext内部会默认实例化一个不含任何内容的StaticMessageSource实例，以保证相应的方法调用。通常情况下，如果要提供容器内的国际化支持，一般会自己注入一个MessageSource的实现类到容器中。  
+>可用的MessageSource实现：
+>>org.springframework.context.support.StaticMessageSource：MessageSource接口的简单实现，可以通过编程的方式添加条目，多用于测试，不用于生产环境。
+>>org.springframework.context.support.ResourceBundleMessageSource：基础标准的java.util.ResourceBundle而实现的MessageSource，对其父类AbstractMessageSource的行为进行了扩展，提供对多个ResourceBundle
+的缓存以提高查询速度。同时，对于参数化的信息和非参数化信息的处理进行了优化，并对用于参数化信息格式化的MessageFormat实例也进行了缓存。它是最常用的、用于正式生产环境下的MessageSource实现。
+>>org.springframework.context.support.ReloadableResourceBundleMessageSource：同样基于标准的java.util.ResourceBundle而构建的MessageSource实现类 ，但通过其cacheSeconds属性可以指定时间段，以定期刷新
+并检查底层的properties资源文件是否有变更。
+
+###容器内部事件发布
+>Java SE提供了实现自定义事件发布（Custom Event publication）功能的基础类，即java.util.EventObject类和java.util.EventListener接口。所有的自定义事件类型可以通过扩展EventObject来实现，而事件的监听器则扩展自EventListener。  
+>组合事件类和监听器，发布事件。 有了自定义事件和自定义事件监听器，剩下的就是发布事件，然后让相应的监听器监听并处理事件了。通常情况下，我们会有一个事件发布者（EventPublisher），它本身作为事件源，会在合适的时点，将相应事件发布给对应的事件监听器。
 
