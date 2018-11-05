@@ -12,17 +12,23 @@
 #### 4.2.1 直接编码的方式
 >Beanfactory只是一个接口，我们最终需要一个该接口的实现类来进行实际的Bean的管理，DefaultListableBeanFactory就是一个比较通用的BeanFactory实现类，
 DefaultListableBeanFactory除了间接地实现了BeanFactory接口，还实现了BeanDefinitionRegistry接口，该接口才是在BeanFactory的实现中担当Bean注册管理的角色，。
-基本上，BeanFactory接口只定义如何访问容器内管理Bean的方法，各个BeanFactory的具体实现类负责具体Bean的注册以及管理工作。BeanDefinitionRegistry接口定义了
+**_基本上，BeanFactory接口只定义如何访问容器内管理Bean的方法，各个BeanFactory的具体实现类负责具体Bean的注册以及管理工作_**。BeanDefinitionRegistry接口定义了
 抽象了Bean的注册逻辑。通常情况下，具体的BeanFactory实现类会实现这个接口来管理Bean的注册。  
+
 - BeanFactory若比作图书馆，则BeanDefinitionRegistry则就像图书馆的书架，所有的书都是放在书架上，虽然借书和还书都是跟图书馆打交道
 >每一个受管的对象，在容器中都会有一个BeanDefinition实例与之相对应，该BeanDefinition的实例负责保存对象的所有必要信息，包含对应的class类型、是否是抽象类、
 构造方法参数以及其他属性等。当客户端向BeanFactory请求相应的对象时，BeanFactory会通过这些信息为客户端返回一个完备可用的对象实例。RootBeanDefinition和ChildBeanDefinition
 是BeanDefinition的两个主要实现类。
+
 #### 4.2.2 外部配置文件的方式
 >采用外部配置文件时，Spring的IOC容器有一个统一的处理方式。通常情况下，需要根据不同的外部配置文件格式，给出相应的BeanDefinitionReader实现类，由BeanDefinitionReader
 的相应实现类将相应的配置文件内容读取并映射到BeanDefinition，然后将映射后的BeanDefinition注册到一个BeanDefinitionRegistry，之后，BeanDefinitionRegistry
 即完成Bean的注册和加载。当然，大部分工作，包括解析文件格式、装配BeanDefinition之类的工作，都是由BeanDefinitionReader的相应实现类来做的，BeanDefinitionRegister
 只不过负责保管而已。
+
+###4.3.5 Bean的scope
+>scope用来声明容器中的对象所应该处的限定场景或者说该对象的存活时间，即容器在对象进入其相应的scope之前，生成并装配这些对象，在该对象不再处于这些scope的限定之后，容器通常会销毁这些对象。
+打个比方吧！我们都是处于社会（容器）中，如果把中学教师作为一个类定义，那么当容器初始化这些类之后，中学教师只能局限在中学这样的场景中；中学，就可以看作中学教师的scope。
 
 ### 4.4 容器背后的秘密
 #### 4.4.1战略性观望
@@ -96,3 +102,62 @@ CglibSubclassingInstantiationStrategy继承了SimpleInstantiationStrategy的以�
  - 小结：Spring的IoC容器主要有两种，即BeanFactory和ApplicationContext。
  
  ## 第五章：Spring IOC容器：ApplicationContext
+
+##第五章：Spting IOC容器 ApplicationContext
+- Spring 为ApplicationContext类型容器提供以下几个常用的实现：
+>org.springframework.context.support.FileSystemXmlApplicationContext:在默认情况下，从文件系统加载bean定义以及相关资源的ApplicationContext实现。  
+>org.springframework.context.support.ClassPathXmlApplicationContext:在默认情况下，从Classpath加载bean定义以及相关资源的ApplicationContext实现。  
+>org.springframework.web.context.support.XmlWebApplicationContext:spring提供的用于web应用程序的ApplicationContext实现。
+
+### 5.1 统一资源加载策略
+>Spring中的org.springframework.core.io.Resource接口是作为所有资源的抽象和访问接口，有如下特定实现：  
+>>ByteArrayResource。将字节（byte）数组提供的数据作为一种资源进行封装，如果通过InputStream形式访问该类型的资源，该实现会根据字节数组的数据，构造相应的ByteArrayInputStream并返回。  
+>>ClassPathResource。该实现从Java应用程序的ClassPath中加载具体资源并进行封装，可以使用指定的类加载器（ClassLoader）或者给定的类进行资源加载。  
+>>FileSystemResource。对java.io.File类型的封装，所以，我们可以以文件或者URL的形式对该类型资源进行访问，只要能跟File打的交道，基本上跟FileSystemResource也可以。  
+>>UrlResource。通过java.net.URL进行的具体资源查找定位的实现类，内部委派URL进行具体的资源操作。  
+>>InputStreamResource。将给定的InputStream视为一种资源的Resource实现类，较为少用。  
+
+>spring中的org.springframework.core.io.ResourceLoader接口是资源查找定位策略的统一抽象，具体的资源查找定位策略则由相应的ResourceLoader实现类给出。  
+>>ResourceLoader的默认实现：org.springframework.core.io.DefaultResourceLoader，该默认的资源查找处理逻辑如下：
+>>>首先检查资源路径是否以classpath:前缀打头，如果是，则尝试构造ClassPathResource类型资源并返回。
+>>>否则， (a) 尝试通过URL，根据资源路径来定位资源，如果没有抛出MalformedURLException，有则会构造UrlResource类型的资源并返回；(b)如果还是无法根据资源路径定位指定的资源，则委派getResourceByPath(String)方法来定位，
+DefaultResourceLoader的getResourceByPath(String)方法默认实现逻辑是，构造ClassPathResource类型的资源并返回。  
+>>FileSystemResourceLoader
+>>>从文件系统加载资源并以FileSystemResource类型返回  
+>org.springframework.core.io.support.ResourcePatternResolver ——批量查找的ResourceLoader
+>>ResourcePatternResolver扩展了ResourceLoader，不止可以加载单个资源，还可以根据指定的资源路径匹配模式，每次返回多个Resource实例。  
+>>ResourcePatternResolver的实现类org.springframework.core.io.support.PathMatchingResourcePatternResolver
+
+### 5.1 国际化信息支持
+- 在java的国际化信息处理，主要涉及lianggelei：java.util.Locale和java.util.ResourceBundle
+>不同的locale代表不同的国家和地区  
+>ResourceBundle用来保存某个特定的Locale信息。通常，ResourceBundle管理一组信息序列，所有的信息序列有统一的一个basename，然后特定的Locale信息，可以根据basename后追加的语言或者地区代码来区分，比如，我们
+用一组properties文件分别来标识不同国家和地区的信息，可以像接下来命名响应的properties文件：message.properties,message_zh.properties,messages_zh_CN.properties,messages_en.properties,messages_en_US.properties.
+其中，文件名中的message部分称作ResourceBundle将加载资源的basename，其他语言或地区的资源在basename的基础上追加Locale特定代码。
+>>每个资源文件中都有相同的键来标识具体资源条目，但每个资源内部对应相同键的资源条目内容，则根据Locale的不同而不同。如：
+ ```
+# messages_zh_CN.properties文件中
+menu.file=文件({0})
+menu.edit=编辑
+...
+# messages_en_US.properties文件中
+menu.file=File({0})
+menu.edit=Edit
+....
+````
+>有了ResourceBundle对应的资源文件之后，我们就可以通过ResourceBundle的getBundle(String basename,Locale locale)方法取得不同的Local对应的ResourceBundle，然后根据资源的键取得相应Locale的资源条目内容。
+通过结合ResourceBundle和Locale，就能实现应用程序的国际化支持。  
+>Spring在javaSE的基础上进一步抽象了国际化信息访问接口，org.springframework.context.MessageSource，其中接口中定义的方法，用户访问国际化资源，ApplicationContext同时也实现了MessageSource接口，
+ApplicationContext将委派容器中一个名称为messageSource的MessageSource接口实现来完成MessageSource应该完成的职责。如果找不到这样一个名字的MessageSource实现， 
+ApplicationContext内部会默认实例化一个不含任何内容的StaticMessageSource实例，以保证相应的方法调用。通常情况下，如果要提供容器内的国际化支持，一般会自己注入一个MessageSource的实现类到容器中。  
+>可用的MessageSource实现：
+>>org.springframework.context.support.StaticMessageSource：MessageSource接口的简单实现，可以通过编程的方式添加条目，多用于测试，不用于生产环境。
+>>org.springframework.context.support.ResourceBundleMessageSource：基础标准的java.util.ResourceBundle而实现的MessageSource，对其父类AbstractMessageSource的行为进行了扩展，提供对多个ResourceBundle
+的缓存以提高查询速度。同时，对于参数化的信息和非参数化信息的处理进行了优化，并对用于参数化信息格式化的MessageFormat实例也进行了缓存。它是最常用的、用于正式生产环境下的MessageSource实现。
+>>org.springframework.context.support.ReloadableResourceBundleMessageSource：同样基于标准的java.util.ResourceBundle而构建的MessageSource实现类 ，但通过其cacheSeconds属性可以指定时间段，以定期刷新
+并检查底层的properties资源文件是否有变更。
+
+###容器内部事件发布
+>Java SE提供了实现自定义事件发布（Custom Event publication）功能的基础类，即java.util.EventObject类和java.util.EventListener接口。所有的自定义事件类型可以通过扩展EventObject来实现，而事件的监听器则扩展自EventListener。  
+>组合事件类和监听器，发布事件。 有了自定义事件和自定义事件监听器，剩下的就是发布事件，然后让相应的监听器监听并处理事件了。通常情况下，我们会有一个事件发布者（EventPublisher），它本身作为事件源，会在合适的时点，将相应事件发布给对应的事件监听器。
+

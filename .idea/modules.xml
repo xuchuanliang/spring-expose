@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/spring-boot-source/spring-boot-source.iml" filepath="$PROJECT_DIR$/spring-boot-source/spring-boot-source.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-expose.iml" filepath="$PROJECT_DIR$/spring-expose.iml" />
+      <module fileurl="file://$PROJECT_DIR$/springIoc/springIoc.iml" filepath="$PROJECT_DIR$/springIoc/springIoc.iml" />
+    </modules>
+  </component>
+</project>
