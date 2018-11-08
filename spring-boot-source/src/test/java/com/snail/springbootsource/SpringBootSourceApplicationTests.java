@@ -2,6 +2,8 @@ package com.snail.springbootsource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -20,6 +22,9 @@ public class SpringBootSourceApplicationTests {
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("");
         applicationContext.getResource("");
+        PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+        propertyPlaceholderConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_FALLBACK);
+        PropertyOverrideConfigurer propertyOverrideConfigurer = new PropertyOverrideConfigurer();
     }
 
 }
