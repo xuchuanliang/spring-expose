@@ -160,4 +160,37 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 ###容器内部事件发布
 >Java SE提供了实现自定义事件发布（Custom Event publication）功能的基础类，即java.util.EventObject类和java.util.EventListener接口。所有的自定义事件类型可以通过扩展EventObject来实现，而事件的监听器则扩展自EventListener。  
 >组合事件类和监听器，发布事件。 有了自定义事件和自定义事件监听器，剩下的就是发布事件，然后让相应的监听器监听并处理事件了。通常情况下，我们会有一个事件发布者（EventPublisher），它本身作为事件源，会在合适的时点，将相应事件发布给对应的事件监听器。
-- 
+
+## 第六章 Spring IOC容器之扩展篇
+
+# 第三部分 Spring AOP框架
+##第七章 一起来看AOP
+
+-- 静态AOP，即第一代AOP
+-- 动态AOP，第二代AOP
+### 7.3 java平台上AOP的实现机制
+- 动态代理：在运行期间，为相应的接口生成对应的代理对象；缺点是需要织入横切关注点逻辑的模块类都得实现相应的接口。spring AOP默认情况下采用这种实现机制实现AOP功能
+- 动态字节码增强：使用ASM或者CGLIB等java工具库，在程序运行期间，动态构建字节码的class文件
+- Java代码生成
+- 自定义类加载器
+### 7.4 AOP国家的公民
+- JoinPoint：在系统运行之前，AOP的功能模块都需要织入到OOP的功能模块中。所以，要进行这种织入过程，我们需要知道在系统的哪些执行点上进行织入操作，这些将要在其之上进
+行织入操作的系统执行点就成为JoinPoint。
+- PointCut概念代表的是JoinPoint的表述方式。将横切逻辑织入当前系统的过程中，需要参照PointCut规定的JoinPoint信息，才可以知道应该往系统的哪些JoinPoint上织入横切逻辑。
+- Advice是单一横向关注点逻辑的载体，它代表将会织入到JoinPoint的横切逻辑。如果将Aspect比作OOP中的class，那么Advice就相当于Class中的method。
+>Before Advice，After Advice，Around Advice，Introduction
+- Aspect
+> Asprct是对系统中的横切关注点逻辑进行模块化封装的AOP概念实体。通常情况下，Aspect可以包含多个Pointcut以及相关Advice定义。
+- 织入和织入器
+>符合Pointcut所指定的条件，将在织入过程中被织入横切逻辑的对象，称为目标对象。
+- 2018年11月9日 22:00:02  第八章 144/673
+
+##第八章 Spring AOP概述以及实现机制
+
+##第九章 Spring AOP一世
+
+##第十章 Spring AOP二世
+
+##第十一章 AOP应用案例
+
+##第十二章 Spring AOP之扩展篇
