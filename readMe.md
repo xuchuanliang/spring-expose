@@ -195,7 +195,26 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 比如安全访问限制。
 2018年11月12日 20:46:08 结束第九章学习
 ##第九章 Spring AOP一世
+### 9.1 Spring AOP中的JoinPoint
+- 在Spring AOP中，仅支持方法级别的JoinPoint，更确切说，只支持方法执行类型的JoinPoint
+###9.2 Spring AOP中PointCut
+>Spring中以接口定义org.springframework.aop.Pointcut作为其AOP框架中所有PointCut的最顶层抽象，该接口定义两个方法来捕捉系统中相应的JoinPoint：org.springframework.aop.Pointcut.getClassFilter、org.springframework.aop.Pointcut.getMethodMatcher
+，并提供一个TruePointCut类型实例。
+>ClassFilter和MethodMatcher分别用于匹配将被执行织入操作的对象以及相应的方法。
+>>ClassFilter接口的作用是对JoinPoint所处的对象进行Class级别的类型匹配。   
+>>MethodMatcher接口的作用是对JoinPoint所处对象的方法进行匹配。MethodMatcher通过重载，定义两个matcher()方法，两个方法的分界线是isRuntime()方法，在对对象具体方法进行拦截的时候，可以忽略每次方法执行的时候
+调用者传入的参数，也可以每次都检查这些方法调用参数，以强化拦截条件。流程是：   
+>>>1.当isRuntime返回false时，表示不会考虑具体JoinPoint的方法参数，这种类型的MethodMatcher称之为StaticMethodMatcher。由于不用
+每次都检查参数，那么对于同样类型的方法匹配结果，就可以缓存在框架中，以提高性能。isRuntime()返回false表明当前的MethodMatcher为staticMethodMatcher的时候，只有boolean matcher(Method method,Class targetClass)
+方法会执行，他的匹配结果是所属Pointcut主要依据。   
+>>>2.当isRuntime()返回true时，表明该MethodMatcher将会每次都对方法调用的参数进行匹配检查，这种类型的methodMatcher称之为DynamicMethodMatcher。因为每次都要匹配，无法缓存，故性能相较StaticMethodMather性能差。
+如果isRuntime()返回true，并且matcher(Method method,Class targetClass)返回true时，三个参数的matcher()方法会被执行，若两个参数的matcher()方法返回false，则三个参数的matcher()不会被执行。
 
+- 常见的PointCut
+>1.org.springframework.aop.support.NameMatchMethodPointcut:根据方法名进行匹配
+>2.org.springframework.aop.support.JdkRegexpMethodPointcut:根据正则表达式进行匹配
+>3.org.springframework.aop.support.annotation.AnnotationMatchingPointcut：根据目标对象中存在指定类型的注解来匹配JoinPoint
+2018年11月15日 12:24:56 156/673
 ##第十章 Spring AOP二世
 
 ##第十一章 AOP应用案例
