@@ -14,7 +14,8 @@ public class RequestCallBack implements MethodInterceptor {
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         if(method.getName().equals("request")){
             //执行逻辑
-            return method.invoke(o,objects);
+            System.out.print("这是横切");
+            return methodProxy.invokeSuper(o,objects);
         }
         return null;
     }

@@ -175,25 +175,29 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 - 自定义类加载器
 ### 7.4 AOP国家的公民
 - JoinPoint：在系统运行之前，AOP的功能模块都需要织入到OOP的功能模块中。所以，要进行这种织入过程，我们需要知道在系统的哪些执行点上进行织入操作，这些将要在其之上进
-行织入操作的系统执行点就成为JoinPoint。
-- PointCut概念代表的是JoinPoint的表述方式。将横切逻辑织入当前系统的过程中，需要参照PointCut规定的JoinPoint信息，才可以知道应该往系统的哪些JoinPoint上织入横切逻辑。
+行织入操作的系统执行点就成为JoinPoint：方法调用、方法调用执行、构造方法调用，构造方法调用执行、字段设置、字段获取、异常处理执行、类初始化。
+- PointCut概念代表的是JoinPoint的表述方式。将横切逻辑织入当前系统的过程中，需要参照PointCut规定的JoinPoint信息，才可以知道应该往系统的哪些JoinPoint上织入横切逻辑，理解成一组JoinPoint或者经过一系列表达式运算后的JoinPoint。
 - Advice是单一横向关注点逻辑的载体，它代表将会织入到JoinPoint的横切逻辑。如果将Aspect比作OOP中的class，那么Advice就相当于Class中的method。
 >Before Advice，After Advice，Around Advice，Introduction
 - Aspect
-> Asprct是对系统中的横切关注点逻辑进行模块化封装的AOP概念实体。通常情况下，Aspect可以包含多个Pointcut以及相关Advice定义。
+> Aspect是对系统中的横切关注点逻辑进行模块化封装的AOP概念实体。通常情况下，Aspect可以包含多个Pointcut以及相关Advice定义。
 - 织入和织入器
 >符合Pointcut所指定的条件，将在织入过程中被织入横切逻辑的对象，称为目标对象。
 
 ##第八章 Spring AOP概述以及实现机制
 - Spring框架的质量三角：AOP、依赖注入、轻量级服务抽象
+- 像日志记录、安全检查、事务管理等系统需求，以AOP的行话而言，这些系统需求就是系统中的横切关注点。
 
+2018年11月27日 22:00:44 162
 ###Spring AOP的实现机制
 >Spring AOP属于第二代AOP，采用动态代理机制和字节码生成技术实现。与最初的AspectJ采用编译器将横切逻辑织入目标对象不同，动态代理机制和字节码技术都是在运行期间
 为目标对象生成一个代理对象，而将横切逻辑织入到这个代理对象中，系统最终使用的是织入了横切逻辑的代理对象，而不是真正的目标对象。
 - 代理：代理处于访问者和被访问者之间，可以隔离这两者之间的直接交互，访问者跟代理打交道就好像在跟被访问者在打交道一样，因为代理通常几乎会全权拥有被代理者的职能，代理能够处理的
 访问请求就不用劳烦被访问者处理了。从这个角度来说，代理可以减少被访问者的负担。另外，即使代理最终要将访问请求转发给真正的被访问者，它也可以在转发请求之前或之后加入特定的逻辑，
 比如安全访问限制。
-2018年11月12日 20:46:08 结束第九章学习
+>使用动态字节码生成技术扩展对象行为的原理是：我们可以对目标对象进行集成扩展，为其生成响应的子类，而子类可以通过覆盖来扩展父类的行为，只要将横切逻辑的实现放到子类中，
+然后让系统使用扩展后的目标对象的子类，就可以达到与代理模式相同的效果。 
+
 ##第九章 Spring AOP一世
 ### 9.1 Spring AOP中的JoinPoint
 - 在Spring AOP中，仅支持方法级别的JoinPoint，更确切说，只支持方法执行类型的JoinPoint
@@ -210,10 +214,13 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 >>>2.当isRuntime()返回true时，表明该MethodMatcher将会每次都对方法调用的参数进行匹配检查，这种类型的methodMatcher称之为DynamicMethodMatcher。因为每次都要匹配，无法缓存，故性能相较StaticMethodMather性能差。
 如果isRuntime()返回true，并且matcher(Method method,Class targetClass)返回true时，三个参数的matcher()方法会被执行，若两个参数的matcher()方法返回false，则三个参数的matcher()不会被执行。
 
+- 在MethodMatcher类型的基础上，PointCut可以分为两类：org.springframework.aop.support.StaticMethodMatcherPointcut和org.springframework.aop.support.DynamicMethodMatcherPointcut
+
 - 常见的PointCut
 >1.org.springframework.aop.support.NameMatchMethodPointcut:根据方法名进行匹配
 >2.org.springframework.aop.support.JdkRegexpMethodPointcut:根据正则表达式进行匹配
->3.org.springframework.aop.support.annotation.AnnotationMatchingPointcut：根据目标对象中存在指定类型的注解来匹配JoinPoint
+>3.org.springframework.aop.support.annotation.AnnotationMatchingPointcut：根据目标对象中存在指定类型的注解来匹配JoinPoint  
+>4.org.springframework.aop.support.ControlFlowPointcut：匹配程序的调用流程，不是对某个方法执行所在的JoinPoint处的单一特征进行匹配
 2018年11月15日 12:24:56 156/673
 ##第十章 Spring AOP二世
 
