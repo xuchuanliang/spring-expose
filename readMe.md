@@ -221,7 +221,17 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 >2.org.springframework.aop.support.JdkRegexpMethodPointcut:根据正则表达式进行匹配
 >3.org.springframework.aop.support.annotation.AnnotationMatchingPointcut：根据目标对象中存在指定类型的注解来匹配JoinPoint  
 >4.org.springframework.aop.support.ControlFlowPointcut：匹配程序的调用流程，不是对某个方法执行所在的JoinPoint处的单一特征进行匹配
-2018年11月15日 12:24:56 156/673
+
+###9.3 Spring AOP中的Advice
+- 介绍
+>Advice实现了将被织入到PointCut规定的JoinPoint处的横切逻辑。在Spring中，Advice按照其自身实例(instance)能否在目标对象类的所有实例中共享这一标准，可以划分为两大类：per-class类型的Advice和per-instance的Advice.
+- per-class类型的Advice
+>per-class类型的Advice是指，该类型的Advice的实例可以在目标对象类的所有实例之间共享。这种类型的Advice通常只是提供方法的拦截功能，不会为目标对象保存任何状态或者添加新的特性。
+
+1.Before Advice
+2018年11月28日 08:27:54  164
+2.
+
 ##第十章 Spring AOP二世
 
 ##第十一章 AOP应用案例
