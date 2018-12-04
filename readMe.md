@@ -224,13 +224,25 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 
 ###9.3 Spring AOP中的Advice
 - 介绍
->Advice实现了将被织入到PointCut规定的JoinPoint处的横切逻辑。在Spring中，Advice按照其自身实例(instance)能否在目标对象类的所有实例中共享这一标准，可以划分为两大类：per-class类型的Advice和per-instance的Advice.
+>Advice实现了将被织入到PointCut规定的JoinPoint处的横切逻辑。在Spring中，Advice按照其自身实例(instance)能否在目标对象类的所有实例中共享这一标准，
+可以划分为两大类：per-class类型的Advice和per-instance的Advice.
 - per-class类型的Advice
->per-class类型的Advice是指，该类型的Advice的实例可以在目标对象类的所有实例之间共享。这种类型的Advice通常只是提供方法的拦截功能，不会为目标对象保存任何状态或者添加新的特性。
+>per-class类型的Advice是指，该类型的Advice的实例可以在目标对象类的所有实例之间共享。这种类型的Advice通常只是提供方法的拦截功能，不会为目标对象保存任何状态或者添加新的特性。   
+- 包含：
+1.BeforeAdvice
+2.ThrowsAdvice
+3.AfterReturnAdvice
+4.AroundAdvice:org.aopalliance.intercept.MethodInterceptor
 
-1.Before Advice
-2018年11月28日 08:27:54  164
-2.
+>per-instance类型的Advice不会在目标类所有对象实例之间共享，而是会为不同的实例对象保存他们各自的状态以及相关逻辑。
+Spring AOP中，唯一一种Advice是Introduction
+Introduction可以在不改动目标类定义的情况下，为目标类增加新的属性以及行为。
+
+###9.4Spring AOP中的Aspect
+- Advisor代表Spring中的Aspect，但是，与正常的Aspect不同，Advisor通常只持有一个Pointcut和Advice
+- 我们将Advisor简单划分为两个分支，一个分支是org.springframework.aop.PointcutAdvisor,另一个分支是org.springframework.aop.IntroductionAdvisor
+2018年12月4日 21:59:31 173
+
 
 ##第十章 Spring AOP二世
 
