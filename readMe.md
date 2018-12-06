@@ -235,13 +235,130 @@ ApplicationContext内部会默认实例化一个不含任何内容的StaticMessa
 4.AroundAdvice:org.aopalliance.intercept.MethodInterceptor
 
 >per-instance类型的Advice不会在目标类所有对象实例之间共享，而是会为不同的实例对象保存他们各自的状态以及相关逻辑。
-Spring AOP中，唯一一种Advice是Introduction
+Spring AOP中，唯一一种per-instance的Advice是Introduction
 Introduction可以在不改动目标类定义的情况下，为目标类增加新的属性以及行为。
 
 ###9.4Spring AOP中的Aspect
 - Advisor代表Spring中的Aspect，但是，与正常的Aspect不同，Advisor通常只持有一个Pointcut和Advice
 - 我们将Advisor简单划分为两个分支，一个分支是org.springframework.aop.PointcutAdvisor,另一个分支是org.springframework.aop.IntroductionAdvisor
-2018年12月4日 21:59:31 173
+
+- PointcutAdvisor的实现
+>DefaultPointcutAdvisor:最通用的PointcutAdvisor，除了不能指定Introduction类型的Advice之外，剩下的任何类型的Pointcut，任何类型的Advice都能通过DefaultPointcutAdvisor使用【最常用】   
+>NameMatchMethodPointcutAdvisor:是细化后的DefaultPointcutAdvisor，限定自身可以使用的Pointcut类型为NameMatchMethodPointcut   
+>RegexpMethodPointcutAdvisor:同上   
+>DeafultBeanFactoryPointcutAdvisor
+- IntroductionAdvisor分支
+>IntroductionAdvisor只能应用于类级别的拦截，只能Introduction型的Advice
+
+- Order的作用
+>当某些Advisor的Pointcur匹配了同一个Jointpoint的时候就会在同一个JoinPoint处执行多个Advice逻辑。Spring在处理同一个JoinPoint出的多个Advisor的时候，Spring会按照指定顺序和优先级来执行它们，顺序号
+决定优先级，顺序号越小，优先级越高从0到1开始指定，一般0顺序号是Spring框架内部使用。在框架中，可以通过让相应的Advisor以及其他顺序紧要的bean实现org.springframework.core.Ordered接口来明确指定相应
+的顺序号。
+
+###9.5 Spring AOP的织入
+>要进行织入，Aspect使用ajc编译器作为它的织入器，JBoss AOP使用自定义的ClassLoader作为它的织入器，在Spring AOP中，使用类org.springframework.aop.framework.ProxyFactory作为织入器。 
+
+- 基本的织入器：ProxyFactory
+>使用ProxyFactory只需要指定如下两个基本东西：
+>>第一个是要对其进行织入的目标对象。可以通过构造方法或者对应的setter方法设置   
+>>第二个是要应用到目标对象的Aspect，也就是Spring中的Advisor，可以直接使用addAdvice(..)方法，指定各种类型的Advice   
+>>>对于Introduction之外的Advice，ProxyFactory内部会为这些Advice构造相应的Advisor，只不过为他们构造Advisor中使用Pointcut为Pointcut.TRUE   
+>>>如果添加的Advice类型是Introduction类型，则会根据具体的Introduction类型进行区分：如果是IntroductionInfo的子类实现，因为它本身包含了必要的描述信息，框架内部会为其构造一个DefaultIntroductionAdvisor，
+如果是DynamicIntroductionAdvice则会抛出AopConfigException异常。
+
+- Spring AOP在使用代理模式实现了AOP的过程中采用了JDK动态代理和CGLIB两种机制，分别对实现了某些接口的目标类和没有实现接口的目标类进行代理
+- 1.基于接口的代理--针对实现了接口的目标类进行织入逻辑，使用织入器代理生成代理对象：
+- 2.基于类的代理，若目标对象没有实现任何接口，默认情况下，ProxyFactory会对目标类进行基于类的代理，即使用CGLIB
+````java
+//这是下面的切面逻辑，及Aspect
+/**
+ * AroundAdvice类型的Advice，及环绕类型的横切逻辑
+ */
+public class PerformanceMethodInterceptor implements MethodInterceptor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceMethodInterceptor.class);
+
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        StopWatch watch = new StopWatch();
+        try{
+            watch.start();
+            return invocation.proceed();
+        }finally {
+            watch.stop();
+            if(LOGGER.isInfoEnabled()){
+                LOGGER.info(watch.toString());
+            }
+        }
+    }
+}
+
+//基于接口的代理逻辑
+public class Test{
+        /**
+         * 基于接口的代理，apo织入器
+         */
+        public static void test(){
+            //创建需要代理的目标对象
+            MockTask mockTask = new MockTask();
+            //创建织入器，用于对目标对象产生代理对象
+            ProxyFactory proxyFactory = new ProxyFactory(mockTask);
+            
+            //通过一下两个属性的任意一个可以强制针对对象而非接口进行动态代理，即使用CGLIB
+            //proxyFactory.setProxyTargetClass(true);
+            //proxyFactory.setOptimize(true);
+            
+            //设置接口，可用于JDK动态代理，此处可以明确设置接口类型，默认情况下ProxyFactory只要检测到目标类实现了相应的接口，也会对目标类进行基于接口的代理
+            proxyFactory.setInterfaces(new Class[]{ITask.class});
+            //创建一个基于方法名称匹配的Aspect即advisor
+            NameMatchMethodPointcutAdvisor matchMethodPointcutAdvisor = new NameMatchMethodPointcutAdvisor();
+            //给Aspect设置方法名称匹配
+            matchMethodPointcutAdvisor.setMappedName("execute");
+            //给Aspect设置横切逻辑，即设置Aspect
+            matchMethodPointcutAdvisor.setAdvice(new PerformanceMethodInterceptor());
+            //设置该切面的执行顺序
+            matchMethodPointcutAdvisor.setOrder(1);
+            //给织入器设置advisor
+            proxyFactory.addAdvisor(matchMethodPointcutAdvisor);
+            //创建代理类
+            ITask proxyObj = (ITask) proxyFactory.getProxy();
+            //执行逻辑
+            proxyObj.execute(null);
+        }
+    }
+
+    // 2.基于类的代理，若目标对象没有实现任何接口，默认情况下，ProxyFactory会对目标类进行基于类的代理，即使用CGLIB
+public class Test{
+        /**
+         * 测试SpringAOP织入器针对没有实现接口的类使用CGLIB动态代理
+         */
+        public static void test2(){
+            //创建织入器，将需要代理的目标对象通过构造参数传入织入器
+            ProxyFactory proxyFactory = new ProxyFactory(new Executalbe());
+            //创建基于方法名称的Aspect切面
+            NameMatchMethodPointcutAdvisor nameMatchMethodPointcutAdvisor = new NameMatchMethodPointcutAdvisor();
+            //设置Pointcut的匹配规则，匹配execu开头的方法
+            nameMatchMethodPointcutAdvisor.setMappedName("execu*");
+            //设置切面逻辑，即为Advisor设置Aspect
+            nameMatchMethodPointcutAdvisor.setAdvice(new PerformanceMethodInterceptor());
+            //将切面设置到织入器中
+            proxyFactory.addAdvisor(nameMatchMethodPointcutAdvisor);
+            //生成代理对象，及CGLIB创建目标类的子类，作为代理对象
+            Executalbe executalbe = (Executalbe) proxyFactory.getProxy();
+            executalbe.execute();
+            System.out.println(executalbe.getClass());
+        }
+}
+````
+
+- **注意，SpringUtil中的StopWatch用于监控方法的执行时间，效率分析，注意挖掘和使用Spring中的工具**
+
+- 但是，如果目标对象类实现了至少一个接口，我们也可以通过proxyTargetClass属性强制ProxyFactory采取基于类的代理，optimize属性同样能够起到相同的作用
+- 总得来说：满足以下三个条件的任意一种，ProxyFactory也会采用基于类的代理机制：
+1.如果目标类没有实现任何接口，不管proxyTargetClass的值是什么，proxyFactory会采用基于类的代理
+2.如果proxyFactory的proxyTargetClass属性值被设置成true，ProxyFactory会采用基于类的代理
+3.如果ProxyFactory的optimize属性值被设置成true，ProxyFactory会采用基于类的代理
+
+- 2018年12月6日 22:09:41 183/673 Introduction的织入
 
 
 ##第十章 Spring AOP二世
