@@ -358,7 +358,39 @@ public class Test{
 2.如果proxyFactory的proxyTargetClass属性值被设置成true，ProxyFactory会采用基于类的代理
 3.如果ProxyFactory的optimize属性值被设置成true，ProxyFactory会采用基于类的代理
 
-- 2018年12月6日 22:09:41 183/673 Introduction的织入
+- Introduction的织入
+>Introduction可以为已经存在的对象类型添加新的行为，只能应用于对象级别的拦截，而不是通常的Advice的方法级别的拦截，所以，进行Introduction织入的过程中，不需要指定
+Pointcut，而只需要指定目标接口类型。
+Spring的Intuction支持只能通过接口定义当前对象添加新的行为，所以需要在织入的时机，指定新织入的接口类型。
+
+#### 看清ProxyFactory的本质
+根：org.springframework.aop.framework.AopProxy
+>Spring AOP框架内使用AopProxy对使用的不同代理实现机制进行了适度的抽象，针对不同的实现机制提供相应的AopProxy子类实现。
+1.org.springframework.aop.framework.JdkDynamicAopProxy
+2.org.springframework.aop.framework.CglibAopProxy   
+不同的AopProxy实现的实例化过程采用工厂模式（抽象工厂模式进行封装），通过org.springframework.aop.framework.AopProxyFactory   
+AopProxyFactory需要根据createAopProxy方法传入的AdvisedSupport实例信息，来构建相应的AopProxy。org.springframework.aop.framework.AdvisedSupport所承载的信息
+分为两类：org.springframework.aop.framework.ProxyConfig--记载生成代理对象的控制信息；org.springframework.aop.framework.Advised，承载生成代理对象所需要的必要
+信息，如相关目标类、Advice、Advisor  
+>>ProxyConfig是一个普通JavaBean对象，定义5个boolean属性值，分别控制生成代理对象时，应该采取哪些行为措施：
+1.proxyTargetClass：若为true则表示使用Cglib代理，默认false
+2.optimize:该属性主要告知代理对象是否需要进一步采取优化措施，同时该属性若为true，则ProxyFactory会使用CGLIB进行代理对象的生成。
+3.opaque:该属性用于控制生成的代理对象是否可以强制装换成Advised，默认值是false，表示任何生成的代理对象都可以强制转型为Advised，我们可以通过Advised查询代理对象的一些状态。
+4.exposeProxy:设置该属性，可以让Spring AOP框架生成的代理对象时，将当前对象绑定到ThreadLocal。如果目标对象需要访问当前代理对象，可以通过AopContext.currentProxy()取得，
+处于性能方面考虑，该属性默认是false
+5.forzen:如果将forzen设置为true，那么一旦针对代理对象生成的各项信息配置完成，则不容许更改，默认false。   
+>>Advised可以设置或者查询代理对象的具体信息，如要针对那些目标类生成代理对象，要为代理对象生成那些横切逻辑等，简单说：可以使用Advised接口访问相应代理对象所持有的Advisor
+，进行添加Advisor、移除Advisor等相关动作。
+
+>ProxyFactory及AopProxyFactory（即AopProxy）和AdvisedSupport于一身，所以可以通过ProxyFactory设置生成代理对象所需要的相关信息，也可以通过ProxyFactory取得最终
+生成的代理对象。前者是AdvisedSupport的职责，后者是AopProxy的职责。   
+为了重用逻辑，Spring AOP框架在实现的时候，将一些共用逻辑抽取到了org.springframework.aop.framework.ProxyCreatorSupport中，它自身继承了AdvisedSupport，为了
+简化子类生成不同类型的AopProxy的工作，ProxyCreatorSupport内部持有一个AopProxyFactory实例，默认采用DefaultAopProxyFactory。   
+- ProxyFactory只是Spring Aop 中最基本的织入器实现。
+1.org.springframework.aop.aspectj.annotation.AspectJProxyFactory
+2.org.springframework.aop.framework.ProxyFactory
+3.org.springframework.aop.framework.ProxyFactoryBean
+2018年12月7日 21:59:54 188/673
 
 
 ##第十章 Spring AOP二世
