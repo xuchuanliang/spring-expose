@@ -419,7 +419,50 @@ AopProxyFactory需要根据createAopProxy方法传入的AdvisedSupport实例信�
  5.org.springframework.aop.target.ThreadLocalTargetSource
 
 ##第十章 Spring AOP二世
+### @AspectJ 形式的AOP使用
+```java
+@Aspect
+public class PerformanceTraceAspect {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceTraceAspect.class);
 
+    @Pointcut("execution(public void *.method1()) || execution(public void *.methods())")
+    public void pointcutName(){}
+
+    @Around("pointcutName()")
+    public Object performanceTrace(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        StopWatch stopWatch = new StopWatch();
+        try {
+            stopWatch.start();
+            return proceedingJoinPoint.proceed();
+        }finally {
+            stopWatch.stop();
+            LOGGER.error(stopWatch.prettyPrint());
+        }
+    }
+}
+
+```
+1.编程方式织入：
+```java
+public class Test {
+    public static void main(String[] args){
+        test1();
+    }
+    public static void test1(){
+        AspectJProxyFactory aspectJProxyFactory = new AspectJProxyFactory();
+        aspectJProxyFactory.setProxyTargetClass(true);
+        aspectJProxyFactory.setTargetClass(Foo.class);
+        aspectJProxyFactory.addAspect(PerformanceTraceAspect.class);
+        Object proxy= aspectJProxyFactory.getProxy();
+        ((Foo)proxy).method1();
+        ((Foo)proxy).method2();
+    }
+}
+
+```
+2.通过自动代理织入
+org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator注入Spring容器，则会自动发现切面
+2018年12月10日 22:21:15 209/673
 
 ##第十一章 AOP应用案例
 
