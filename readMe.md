@@ -390,10 +390,36 @@ AopProxyFactory需要根据createAopProxy方法传入的AdvisedSupport实例信�
 1.org.springframework.aop.aspectj.annotation.AspectJProxyFactory
 2.org.springframework.aop.framework.ProxyFactory
 3.org.springframework.aop.framework.ProxyFactoryBean
-2018年12月7日 21:59:54 188/673
 
+#### 容器的织入器--ProxyFactoryBean
+> ProxyFactoryBean = Proxy + FactoryBean,FactoryBean的作用是容器中的某个对象持有某个FactoryBean的引用，它取的不是FactoryBean本身，而是FactoryBean的getObject()
+方法所返回的代理对象。
+
+####加快织入的自动化进程
+- 自动代理的实现的原理：Spring AOP的自动代理是建立在IOC容器的BeanPostProcessor概念之上，通过BeanPostProcessor，我们可以遍历容器中所有bean的基础上，对遍历到的bean进行一些操作。
+，其实只要提供一个BeanPostProcessor，然后在这个BeanPostProcessor内部，当对象实例化时，为其生成一个代理对象并返回，而不是实例化后的目标对象本身，从而达到代理对象自动生成的目的。
+
+- Spring中的自动代理实现类：
+>1.org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator【半自动步枪】
+2.org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator【全自动步枪】:将该自动代理实现类注册到容器后，它会自动搜寻容器内所有的Advisor，然后
+根据各个Advisor所提供的拦截信息，为符合条件的容器中的目标对象生成相应的代理对象。该自动代理类只对Advisor有效，因为只有Advisor才既有Pointcut信息以捕捉符合条件的目标
+对象，又有相应的Advice。
+
+### TargetSource
+>TargetSource的作用就好像是为了目标对象在外面加了一个壳，或者说，他好像是目标对象的容器。当每个针对目标对象的方法调用经历层层拦截而到达调用链的终点时，就改该调用
+目标对象上定义的方法了。但这时，Spring AOP做了点手脚，它不是直接调用这个目标对象上的方法，而是通过插足与调用链和实际目标对象之间的某个TargetSource来取得具体目标对象，
+然后调用TargetSource来取得具体目标对象，然后再调用从TargetSource中取得的目标对象上相应的方法。
+
+#### 可用的TargetSource实现类
+>1.org.springframework.aop.target.SingletonTargetSource
+ 2.org.springframework.aop.target.PrototypeTargetSource
+ 3.org.springframework.aop.target.HotSwappableTargetSource:使用org.springframework.aop.target.HotSwappableTargetSource封装目标对象，可以让我们在应用程序运行
+ 的时候，根据某种特定条件，动态的替换目标对象类的具体实现。使用swap方法，可以用新的目标对象实例将旧的目标对象实例替换掉。
+ 4.org.springframework.aop.target.CommonsPoolTargetSource
+ 5.org.springframework.aop.target.ThreadLocalTargetSource
 
 ##第十章 Spring AOP二世
+
 
 ##第十一章 AOP应用案例
 
