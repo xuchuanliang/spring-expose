@@ -462,7 +462,80 @@ public class Test {
 ```
 2.通过自动代理织入
 org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator注入Spring容器，则会自动发现切面
-2018年12月10日 22:21:15 209/673
+
+- @AspectJ形式的Pointcut
+>@Pointcut是方法级别的注解，附着于方法之上，方法若为private类型，则该Pointcut只允许当前切面使用，若为public类型，则允许其他切面调用。
+AspectJ的Pointcut表达式支持&&，||和！逻辑运算符，进行Pointcut表达式之间的逻辑运算。
+```java
+@Aspect
+public class AspectJDemo {
+    //设置成private 则其他切面无法调用该Pointcut
+    @Pointcut("execution(void method1())")
+    private void method1Exec(){}
+
+    @Pointcut("execution(void method2())")
+    private void method2Exec(){}
+
+    @Pointcut("execution(void method1()) || execution(void method2())")
+    public void bothMethodExec(){}
+
+    @Pointcut("method1Exec() || method2Exec()")
+    public void bothMethod2Exec(){}
+}
+``` 
+- @AspectJ形式Pointcut表达式的标识符
+>execution：帮助我们匹配拥有指定方法签名的JointPoint，使用该标识符的Pointcut表达式规定的格式如下：
+execution(modifiers-pattern? ret-type-pattern declaring-type-pattern? name-pattern(param-pattern) throw-pattern?)，其中方法返回类型、
+方法名和参数部分的匹配模式是必须指定的，其他部分的匹配模式可以省略。
+如execution (public void Foo.doSomthing(String))-->execution( void doSomething(String))。
+execution表达式中有两种通配符：\*和.. ，
+\*可以用于任何部分的匹配模式中，可以匹配相邻的多个字符，即一个word，如：execution(\* \*(String))或者execution(\* \*(\*))；
+..通配符可以在两个位置使用，一个是在declaring-type-pattern规定的位置，一个在方法参数匹配模式的的位置，如果用于declaring-type-pattern规定的位置，则可以指定多个
+层次的类型声明，如：execution(void cn.spring21.\*.doSomething(\*))【只能指定到cn.spring21这一层下的所有类型】；execution(void cn.spring21..\*.doSomething(\*))【可以匹配cn.spring21包下的所有类型，以及cn.spring21下层包下声明的所有类型】；
+..如果用于方法参数列表匹配位置，则表示该方法可以有0到多个参数，类型不限：execution(void \*.doSomething(..)),注：此处如果用*匹配只能配置一个参数。
+如：execution(void \*.doSomething(String,\*))【匹配两个参数，第一个参数为String类型，第二个参数类型不限】，
+execution(void \*.doSomething(..,String))，【匹配拥有多个参数的doSomething方法，之前几个参数类型不限，但最后一个参数必须是String】,
+execution(void \*.doSomething(\*,String,..))【匹配拥有多个参数的doSomething方法，第一个参数类型不限，第二个参数类型为String，其他剩余参数数量，类型均不限】
+
+>within：within标识符只接受类型声明，它将会匹配指定类型下的所有Joinpoint。不过，因为Spring AOP只支持方法级别的Joinpoint，所以，在为within指定某个类后，它将匹配指定类
+所声明的所有方法指定。
+```java
+@Aspect
+public class AspectJDemo {
+    @Pointcut("within(com.snail.springbootsource.capter10..*)")
+    public void withinMethod2(){}
+
+    @Pointcut("within(com.snail.springbootsource..*)")
+    public void withinMethod3(){}
+}
+```
+>this和target：   
+>args：帮助我们捕捉拥有指定参数类型、指定参数数量的方法级Joinpoint，而不管在什么类型中被声明，与直接使用execution标识符可以直接明确指定方法参数类型不同，
+args标识符会在运行期间动态检查参数的类型，例如参数接受是Object user，在运行期间传入的参数只要是User类型，则args就会匹配，而此种情况execution不会匹配
+```java
+@Aspect
+public class AspectJDemo {
+    @Pointcut("args(com.snail.springbootsource.capter10.Foo)")
+    public void argsMethod(){}
+}
+```
+>@within：如果使用@within指定了某种类型的注解，那么，只要对象标注了该类型的注解，使用了@within标识符的Pointcut表达式将会匹配该对象内部所有的Joinpoint，
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD,ElementType.TYPE})
+public @interface AnyJointpointAnnotation {
+}
+
+@Aspect
+public class AspectJDemo {
+    @Pointcut("@within(AnyJointpointAnnotation)")
+    public void within2Method(){}
+}
+```
+>@target：与@within没有太大区别，只不错@within属于静态匹配，@target则是在运行时动态匹配Joinpoint   
+@args：使用@args标识符的Pointcut表达式将会尝试检查当前方法级的Joinpoint的方法参数类型。如果该方法传入的参数类型拥有@args所指定的注解，当前Joinpoint将被匹配，否则不会被匹配。
+
+- 2018年12月12日 22:23:29 218/673
 
 ##第十一章 AOP应用案例
 
