@@ -544,7 +544,14 @@ public class AspectJDemo {
     public void annotationMethod(){}
 }
 ```
-- 2018年12月13日 08:18:48 219/673 @Aspect在Spring aop中的真实面目
+#### @AspectJ形式的Advice
+>1.@Before
+ 2.@AfterReturning
+ 3.@AfterThrowing
+ 4.@After
+ 5.@Aroud
+ 6.@DeclareParents
+- 2018年12月13日 08:18:48 220/673 @Aspect在Spring aop中的真实面目
 
 ##第十一章 AOP应用案例
 
