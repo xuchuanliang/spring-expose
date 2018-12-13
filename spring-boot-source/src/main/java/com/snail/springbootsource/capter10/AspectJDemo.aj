@@ -32,4 +32,7 @@ public class AspectJDemo {
 
     @Pointcut("@within(AnyJointpointAnnotation)")
     public void within2Method(){}
+
+    @Pointcut("@annotation(AnyJointpointAnnotation)")
+    public void annotationMethod(){}
 }

@@ -533,9 +533,18 @@ public class AspectJDemo {
 }
 ```
 >@target：与@within没有太大区别，只不错@within属于静态匹配，@target则是在运行时动态匹配Joinpoint   
-@args：使用@args标识符的Pointcut表达式将会尝试检查当前方法级的Joinpoint的方法参数类型。如果该方法传入的参数类型拥有@args所指定的注解，当前Joinpoint将被匹配，否则不会被匹配。
-
-- 2018年12月12日 22:23:29 218/673
+>@args：使用@args标识符的Pointcut表达式将会尝试检查当前方法级的Joinpoint的方法参数类型。如果该方法传入的参数类型拥有@args所指定的注解，当前Joinpoint将被匹配，否则不会被匹配。   
+>@annotation：使用@annotation标识符的Pointcut表达式，将会尝试检查系统中所有对象中所有方法级别Joinpoint。如果被检测的方法标注有@annotation标识符所指定的注解类型，
+那么当前方法所在的Joinpoint将会被Pointcut表达式所匹配。
+>>注意，所有已@开头的标识符，都只能指定注解类型参数。
+```java
+@Aspect
+public class AspectJDemo {
+    @Pointcut("@annotation(AnyJointpointAnnotation)")
+    public void annotationMethod(){}
+}
+```
+- 2018年12月13日 08:18:48 219/673 @Aspect在Spring aop中的真实面目
 
 ##第十一章 AOP应用案例
 
