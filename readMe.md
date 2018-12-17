@@ -550,8 +550,34 @@ public class AspectJDemo {
  3.@AfterThrowing
  4.@After
  5.@Aroud
- 6.@DeclareParents
-- 2018年12月13日 08:18:48 220/673 @Aspect在Spring aop中的真实面目
+ 6.@DeclareParents：用于标注Introdution类型的Advice
+ ```java
+@Aspect
+public class AspectJDemo {
+    @Pointcut("execution(void method1())")
+    public void method1Exec(){}
+
+    @Pointcut("execution(void method2())")
+    public void method2Exec(){}
+
+    @Before("withinMethod()")
+    public void setUnpResourceFolder(){
+        //业务逻辑
+    }
+
+    @After("method2Exec()")
+    public void cleanUpResourceFolder(){
+        //切面逻辑
+    }
+    
+    @Around("execution(void *.*..*(..))")
+    public void onUpResourceFolder(){
+        //切面逻辑
+    }
+}
+```
+
+- 2018年12月17日 12:29:29 232/673 基于Schema 的AOP
 
 ##第十一章 AOP应用案例
 
