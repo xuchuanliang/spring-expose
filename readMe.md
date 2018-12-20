@@ -582,3 +582,20 @@ public class AspectJDemo {
 ##第十一章 AOP应用案例
 
 ##第十二章 Spring AOP之扩展篇
+
+# 第四部分 使用Spring访问数据
+- spring提供的数据访问层分为三个部分：1.统一的数据访问异常层析体系；2.JDBC API的最佳实践；3.以统一的方式对各种ORM方案的继承；
+## 第十三章 统一的数据访问异常层析体系
+
+###DAO模式的背景
+
+###梦想照进现实
+
+###发现问题，解决问题
+
+###不重新发明轮子
+
+## 第十四章 JDBC API的最佳实践
+- Spring提供两种使用JDBC API的最佳实践：1.以JdbcTemplate为核心的基于Template的JDBC使用方式；2.在JdbcTemplate基础之上构建的基于操作对象的JDBC使用方式。
+###基于JdbcTemplate的JDBC使用方式
+2018年12月20日 08:24:01 267/673

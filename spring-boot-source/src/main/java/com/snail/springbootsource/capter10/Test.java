@@ -1,6 +1,7 @@
 package com.snail.springbootsource.capter10;
 
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
+import org.springframework.aop.framework.AopContext;
 
 public class Test {
     public static void main(String[] args){
@@ -14,5 +15,8 @@ public class Test {
         Object proxy= aspectJProxyFactory.getProxy();
         ((Foo)proxy).method1();
         ((Foo)proxy).method2();
+    }
+
+    public static void test2(){
     }
 }
