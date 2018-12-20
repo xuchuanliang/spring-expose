@@ -598,4 +598,4 @@ public class AspectJDemo {
 ## 第十四章 JDBC API的最佳实践
 - Spring提供两种使用JDBC API的最佳实践：1.以JdbcTemplate为核心的基于Template的JDBC使用方式；2.在JdbcTemplate基础之上构建的基于操作对象的JDBC使用方式。
 ###基于JdbcTemplate的JDBC使用方式
-2018年12月20日 08:24:01 267/673
+2018年12月20日 12:37:30 288/673
