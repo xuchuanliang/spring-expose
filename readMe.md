@@ -598,4 +598,17 @@ public class AspectJDemo {
 ## 第十四章 JDBC API的最佳实践
 - Spring提供两种使用JDBC API的最佳实践：1.以JdbcTemplate为核心的基于Template的JDBC使用方式；2.在JdbcTemplate基础之上构建的基于操作对象的JDBC使用方式。
 ###基于JdbcTemplate的JDBC使用方式
-2018年12月20日 12:37:30 288/673
+#### Spring中的DataSource
+1.简单的DataSource实现
+2.拥有连接缓冲池的DataSource实现
+3.支持分布式事务的DataSource实现：javax.sql.XADataSource
+>若需要自定义DataSource，只需要扩展org.springframework.jdbc.datasource.AbstractDataSource即可
+org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource会持有一组DataSource，当它的getConnection()被调用时，会根据条件从这组
+DataSource中查找符合条件的DataSource，然后调用查找取得的DataSource上的getConnection()。如果应用程序中有多个数据库，并且需要根据情况让应用程序访问
+不同的数据库，那么扩展并实现这个子类即可【动态数据源使用】。
+
+###基于操作对象的JDBC使用方式
+- org.springframework.jdbc.object.RdbmsOperation
+
+##第十五章 Spring对各种ORM的集成
+2018年12月21日 12:26:35 326/673
