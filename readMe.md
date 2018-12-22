@@ -611,4 +611,9 @@ DataSource中查找符合条件的DataSource，然后调用查找取得的DataSo
 - org.springframework.jdbc.object.RdbmsOperation
 
 ##第十五章 Spring对各种ORM的集成
-2018年12月21日 12:26:35 326/673
+Spring对各种ORM集成主要体现一下三个方面：1.统一资源管理方式；2.特定于ORM的数据访问异常到Spring统一异常体系的转译；3.统一的数据访问事务管理及控制方式
+
+##第十六章 Spring数据访问之扩展篇
+
+
+2018年12月22日 08:28:24 354/673
