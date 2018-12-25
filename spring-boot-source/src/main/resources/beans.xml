@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="message" class="com.snail.springbootsource.share.entity.Message"></bean>
+    <bean name="order" class="com.snail.springbootsource.share.entity.Order"></bean>
+    <bean name="user" class="com.snail.springbootsource.share.entity.User"></bean>
+
+    <bean name="event" class="com.snail.springbootsource.share.entity.Event">
+        <constructor-arg index="0" ref="order"></constructor-arg>
+        <!--<constructor-arg index="1" ref="user"></constructor-arg>-->
+        <property name="user" ref="user"></property>
+    </bean>
+
+    <bean name="nextDay" class="com.snail.springbootsource.share.factoryBean.NextDayFactoryBean" ></bean>
+</beans>
