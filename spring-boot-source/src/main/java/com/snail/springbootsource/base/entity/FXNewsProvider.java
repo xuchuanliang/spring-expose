@@ -6,18 +6,16 @@ public class FXNewsProvider {
     private IFXNewsListener newsListener;
     private IFXNewsPersister newPersistener;
 
-    public void getAndPersistNews()
-    {
+    public void getAndPersistNews() {
         String[] newsIds = newsListener.getAvailableNewsIds();
-        if(Objects.isNull(newsIds))
-        {
+        if (Objects.isNull(newsIds)) {
             return;
         }
-        for(String newsId : newsIds)
-        {
+        for (String newsId : newsIds) {
             FXNewsBean newsBean = newsListener.getNewsByPK(newsId);
             newPersistener.persistNews(newsBean);
             newsListener.postProcessIfNecessary(newsId);
-        } }
+        }
+    }
 
 }

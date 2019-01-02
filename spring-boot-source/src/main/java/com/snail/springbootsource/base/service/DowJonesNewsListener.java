@@ -3,9 +3,10 @@ package com.snail.springbootsource.base.service;
 import com.snail.springbootsource.base.entity.FXNewsBean;
 import com.snail.springbootsource.base.entity.IFXNewsListener;
 
-public class DowJonesNewsListener implements IFXNewsListener,PasswordDecodable {
+public class DowJonesNewsListener implements IFXNewsListener, PasswordDecodable {
 
     private String password;
+
     @Override
     public String[] getAvailableNewsIds() {
         return new String[0];

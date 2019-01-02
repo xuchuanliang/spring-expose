@@ -12,10 +12,10 @@ public class RequestCallBack implements MethodInterceptor {
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        if(method.getName().equals("request")){
+        if (method.getName().equals("request")) {
             //执行逻辑
             System.out.print("这是横切");
-            return methodProxy.invokeSuper(o,objects);
+            return methodProxy.invokeSuper(o, objects);
         }
         return null;
     }

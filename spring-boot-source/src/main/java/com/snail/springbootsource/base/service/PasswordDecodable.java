@@ -5,5 +5,6 @@ package com.snail.springbootsource.base.service;
  */
 public interface PasswordDecodable {
     String getEncodedPassword();
+
     void setDecodedPassword(String password);
 }

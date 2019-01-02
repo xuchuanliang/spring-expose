@@ -13,5 +13,5 @@
         <property name="user" ref="user"></property>
     </bean>
 
-    <bean name="nextDay" class="com.snail.springbootsource.share.factoryBean.NextDayFactoryBean" ></bean>
+    <bean name="nextDay" class="com.snail.springbootsource.share.factoryBean.NextDayFactoryBean"></bean>
 </beans>

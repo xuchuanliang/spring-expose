@@ -6,9 +6,9 @@ import org.springframework.context.ApplicationListener;
 public class MethodExecutionEventListener implements ApplicationListener {
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if(event instanceof MethodExecutionEvent){
+        if (event instanceof MethodExecutionEvent) {
             //执行逻辑
         }
     }
-    
+
 }

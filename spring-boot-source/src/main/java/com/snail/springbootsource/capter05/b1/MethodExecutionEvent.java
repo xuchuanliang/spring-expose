@@ -20,14 +20,16 @@ public class MethodExecutionEvent extends EventObject {
         super(source);
     }
 
-    public MethodExecutionEvent(Object source,String methodName){
+    public MethodExecutionEvent(Object source, String methodName) {
         super(source);
         this.methodName = methodName;
     }
-    public String getMethodName(){
+
+    public String getMethodName() {
         return this.methodName;
     }
-    public void setMethodName(String methodName){
+
+    public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
 }

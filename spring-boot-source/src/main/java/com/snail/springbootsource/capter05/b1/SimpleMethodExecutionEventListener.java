@@ -7,12 +7,12 @@ public class SimpleMethodExecutionEventListener implements MethodExecutionEventL
     @Override
     public void onMethodBegin(MethodExecutionEvent executionEvent) {
         String methodName = executionEvent.getMethodName();
-        System.out.println("start to execute the method["+methodName+"].");
+        System.out.println("start to execute the method[" + methodName + "].");
     }
 
     @Override
     public void onMethodEnd(MethodExecutionEvent executionEvent) {
         String methodName = executionEvent.getMethodName();
-        System.out.println("finished to execute the method["+methodName+"].");
+        System.out.println("finished to execute the method[" + methodName + "].");
     }
 }

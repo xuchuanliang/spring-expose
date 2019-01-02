@@ -13,7 +13,8 @@ public class PerformanceTraceAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceTraceAspect.class);
 
     @Pointcut("execution(public void *.method1()) || execution(public void *.methods())")
-    public void pointcutName(){}
+    public void pointcutName() {
+    }
 
     @Around("pointcutName()")
     public Object performanceTrace(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
@@ -21,7 +22,7 @@ public class PerformanceTraceAspect {
         try {
             stopWatch.start();
             return proceedingJoinPoint.proceed();
-        }finally {
+        } finally {
             stopWatch.stop();
             LOGGER.error(stopWatch.prettyPrint());
         }

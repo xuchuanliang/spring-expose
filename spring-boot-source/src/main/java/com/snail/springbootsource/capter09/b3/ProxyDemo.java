@@ -14,14 +14,15 @@ import org.springframework.util.StopWatch;
  * Spring最基本的织入器：ProxyFactory
  */
 public class ProxyDemo {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         try {
             test2();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-    public static void test1(){
+
+    public static void test1() {
         //织入器
         ProxyFactory proxyFactory = new ProxyFactory();
         //切面

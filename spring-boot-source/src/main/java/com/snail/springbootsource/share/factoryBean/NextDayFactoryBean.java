@@ -10,7 +10,7 @@ public class NextDayFactoryBean implements FactoryBean {
     public Object getObject() throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.MINUTE,2);
+        calendar.add(Calendar.MINUTE, 2);
         return calendar.getTime();
     }
 

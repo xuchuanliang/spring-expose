@@ -7,20 +7,24 @@ public abstract class Vehicle {
     /**
      * 模板方法
      */
-     public final void driver(){
+    public final void driver() {
         startTheEngine();
         putIntoGear();
         looseHandBrake();
         stepOnTheGasAndGo();
-     }
-     protected abstract void putIntoGear();
-     private void stepOnTheGasAndGo(){
-         //逻辑
-     }
-     private void looseHandBrake(){
-         //逻辑
-     }
-     private void startTheEngine(){
-         //逻辑
-     }
+    }
+
+    protected abstract void putIntoGear();
+
+    private void stepOnTheGasAndGo() {
+        //逻辑
+    }
+
+    private void looseHandBrake() {
+        //逻辑
+    }
+
+    private void startTheEngine() {
+        //逻辑
+    }
 }

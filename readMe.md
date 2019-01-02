@@ -634,6 +634,11 @@ Spring对各种ORM集成主要体现一下三个方面：1.统一资源管理方
 可以直接和RM打交道。通常情况下，相应的RM都有内置的事务支持，所有，在局部事务中，我们更倾向于直接使用RM的内置事务支持。
 
 ## 第十八章 群雄逐鹿下的Java事务管理
+### 18.2java 平台的分布式事务支持
+- java平台上的分布式事务管理，主要通过JTA（Java Transaction api）或者JCA(Java Connector Architecture)提供支持
+>java平台上存在的几个独立的并且比较成熟的JTA实现产品：JOTM、Atomikos、JBoss Transactions
+
+
 2018年12月25日 21:38:24 372/673
 
 ## 第十九章 Spring事务王国下的架构

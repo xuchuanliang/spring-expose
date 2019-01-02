@@ -9,15 +9,15 @@ import java.lang.reflect.Method;
 public class RequestCtrlInvocationHandler implements InvocationHandler {
     private Object target;
 
-    public RequestCtrlInvocationHandler(Object target){
+    public RequestCtrlInvocationHandler(Object target) {
         this.target = target;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if(method.getName().equals("request")){
+        if (method.getName().equals("request")) {
             //只能逻辑
-            return method.invoke(target,args);
+            return method.invoke(target, args);
         }
         return null;
     }

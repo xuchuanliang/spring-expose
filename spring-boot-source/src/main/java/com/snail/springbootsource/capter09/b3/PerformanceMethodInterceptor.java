@@ -15,12 +15,12 @@ public class PerformanceMethodInterceptor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         StopWatch watch = new StopWatch();
-        try{
+        try {
             watch.start();
             return invocation.proceed();
-        }finally {
+        } finally {
             watch.stop();
-            if(LOGGER.isInfoEnabled()){
+            if (LOGGER.isInfoEnabled()) {
                 LOGGER.info(watch.toString());
             }
         }

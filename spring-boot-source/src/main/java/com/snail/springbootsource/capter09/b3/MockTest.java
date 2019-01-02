@@ -4,7 +4,7 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.NameMatchMethodPointcutAdvisor;
 
 public class MockTest {
-    public static void main(String[] args){
+    public static void main(String[] args) {
 //        test();
         test2();
     }
@@ -12,7 +12,7 @@ public class MockTest {
     /**
      * 基于接口的代理，apo织入器
      */
-    public static void test(){
+    public static void test() {
         //创建需要代理的目标对象
         MockTask mockTask = new MockTask();
         //创建织入器，用于对目标对象产生代理对象
@@ -41,7 +41,7 @@ public class MockTest {
     /**
      * 测试SpringAOP织入器针对没有实现接口的类使用CGLIB动态代理
      */
-    public static void test2(){
+    public static void test2() {
         //创建织入器，将需要代理的目标对象通过构造参数传入织入器
         ProxyFactory proxyFactory = new ProxyFactory(new Executalbe());
         //创建基于方法名称的Aspect切面
