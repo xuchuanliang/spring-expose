@@ -638,11 +638,18 @@ Spring对各种ORM集成主要体现一下三个方面：1.统一资源管理方
 - java平台上的分布式事务管理，主要通过JTA（Java Transaction api）或者JCA(Java Connector Architecture)提供支持
 >java平台上存在的几个独立的并且比较成熟的JTA实现产品：JOTM、Atomikos、JBoss Transactions
 
-
-2018年12月25日 21:38:24 372/673
-
+2019年1月2日 21:34:12 378/673
 ## 第十九章 Spring事务王国下的架构
-
+- Spring的事务框架设计理念：让事务管理的关注点与数据访问关注点相分离
+### 19.1统一中原的过程
+>org.springframework.transaction.PlatformTransactionManager是Spring事务抽象架构的核心接口，他的主要作用是为应用程序提供界定事务的统一方式。
+### 19.2 和平年代
+>Spring事务涉及3个核心接口
+1.org.springframework.transaction.PlatformTransactionManager:负责界定事务边界
+2.org.springframework.transaction.TransactionDefinition：负责定义事务相关属性，包括隔离级别、传播行为等
+3.org.springframework.transaction.TransactionStatus：负责事务开启至事务结束期间的事务状态   
+>将TransactionDefinition按照编程式事务和声明式事务分为两个分支。
+2019年1月3日 21:53:30 402/673
 ## 第二十章 使用Spring进行事务管理
 
 ## 第二十一章 Spring事务管理之扩展篇
