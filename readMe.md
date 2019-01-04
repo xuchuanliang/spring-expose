@@ -651,5 +651,32 @@ Spring对各种ORM集成主要体现一下三个方面：1.统一资源管理方
 >将TransactionDefinition按照编程式事务和声明式事务分为两个分支。
 2019年1月3日 21:53:30 402/673
 ## 第二十章 使用Spring进行事务管理
-
 ## 第二十一章 Spring事务管理之扩展篇
+ThreadLocal的概念以及使用
+
+2019年1月4日 22:23:17 438/673
+#第六部分 Spring的web MVC框架
+
+##第二十二章 迈向SpringMVC的旅程
+
+##第二十三章 Spirng MVC初体验
+
+##第二十四章 近距离接触Spring MVC的主要角色
+
+##第二十五章 认识更多Spring MVC 家族成员
+
+##第二十六章 Spring MVC中基于注解的Controller
+
+##第二十七章 Spring MVC之扩展篇
+
+#第七部分 Spring框架对J2EE服务的集成和支持
+
+##第二十八章 Spring框架内的JNDI支持
+
+##第二十九章 Spring框架对JMS的集成
+
+##第三十章 使用Spring发送E-mail
+
+##第三十一章 Spring中的任务调度和线程池支持
+
+##第三十二章 Spring远程方案
