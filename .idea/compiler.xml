@@ -17,4 +17,10 @@
       <module name="springIoc" target="1.8" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="demo" options="-parameters" />
+      <module name="springIoc" options="-parameters" />
+    </option>
+  </component>
 </project>
