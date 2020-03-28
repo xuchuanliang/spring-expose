@@ -1,0 +1,186 @@
+springContext执行流程分析：
+>ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("applicationContext.xml"); 创建一个ApplicationContext
+    # refresh()(org.springframework.context.ConfigurableApplicationContext.refresh)的doc文档：
+    # Load or refresh the persistent representation of the configuration, - 翻译：加载或者刷新配置(configuration)
+    # which might an XML file, properties file, or relational database schema. - 翻译：加载或者刷新的配置文件有可能是XML文件、properties文件或者关系型数据库
+    # As this is a startup method, it should destroy already created singletons - 翻译：作为一个启动方法，它应该销毁已经创建的单例实例
+    # if it fails, to avoid dangling resources.  - 翻译：如果销毁失败，避免无用资源
+    # In other words, after invocation of that method, either all or no singletons at all should be instantiated. - 翻译：总得来说，调用本方法之后，要么全部被实例化，要么一个都不会被实例化
+    >org.springframework.context.support.AbstractApplicationContext.refresh
+        # doc文档：
+        # Prepare this context for refreshing, - 翻译：为更新操作预先准备上下文环境
+        # setting its startup date and active flag as well as performing any initialization of property sources. - 翻译：设置启动日志和有效标识以及执行其他的初始化属性
+        >org.springframework.context.support.AbstractApplicationContext.prepareRefresh
+        # doc文档：
+        # Tell the subclass to refresh the internal bean factory. - 翻译：通知子类更新其内部bean Factory
+        # return the fresh BeanFactory instance - 返回一个全新的BeanFactory
+        >org.springframework.context.support.AbstractApplicationContext.obtainFreshBeanFactory
+        # doc文档：
+        # Configure the factory's standard context characteristics, - 翻译：
+        # such as the context's ClassLoader and post-processors. - 翻译：配置BeanFactory标准上下文信息，类似于上下文的Classloader和post-processors等
+        >org.springframework.context.support.AbstractApplicationContext.prepareBeanFactory
+        # doc文档：
+        # Modify the application context's internal bean factory after its standard initialization. - 翻译：在初始化完BeanFactory的标准上下文信息后，修改上下文的内部beanFactory
+        # All bean definitions will have been loaded,but no beans will have been instantiated yet. - 翻译：所有的bean definitions将会被加载，但是到目前为止没有bean被实例化
+        # This allows for registering special BeanPostProcessors etc in certain ApplicationContext implementations. - 翻译：这允许在特殊的ApplicationContext实现中注册特殊的BeanPostProcessors等操作
+        >org.springframework.context.support.AbstractApplicationContext.postProcessBeanFactory
+        # doc文档：
+        # Instantiate and invoke all registered BeanFactoryPostProcessor beans,- 翻译：实例化所有已经注册的BeanFactoryPostProcessor，并且调用其postProcessBeanFactory()方法，
+        # respecting explicit order if given.  - 翻译如果注册的postProcessBeanFactory有Order(org.springframework.core.annotation.Order)注解，则会严格按照Order定义的顺序来执行
+        >org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors
+        # doc文档：
+        # Instantiate and register all BeanPostProcessor beans, - 翻译：实例化并注册所有的BeanPostProcessor，
+        # respecting explicit order if given. - 翻译：如果BeanPostProcessor有Order(org.springframework.core.annotation.Order)注解，则会严格按照定义的顺序执行
+        >org.springframework.context.support.AbstractApplicationContext.registerBeanPostProcessors
+        # doc文档：
+        # Initialize the MessageSource.Use parent's if none defined in this context. - 翻译：初始化MessageSource，如果没有定义就会默认使用父类的
+        >org.springframework.context.support.AbstractApplicationContext.initMessageSource
+        # doc文档：
+        # Initialize the ApplicationEventMulticaster. - 翻译：初始化ApplicationEventMulticaster
+        # Uses SimpleApplicationEventMulticaster if none defined in the context. - 翻译：如果没有定义则会使用 SimpleApplicationEventMulticaster
+        >org.springframework.context.support.AbstractApplicationContext.initApplicationEventMulticaster
+        # doc文档：
+        # Template method which can be overridden to add context-specific refresh work. - 翻译：可以被重写的模板方法，在refresh增加一些特殊操作
+        # Called on initialization of special beans, before instantiation of singletons. - 翻译：在实例化单例之前，初始化特殊的bean的时候被调用
+        # This implementation is empty. - 翻译：他的实现类是空
+        >org.springframework.context.support.AbstractApplicationContext.onRefresh
+        # doc文档：
+        # Add beans that implement ApplicationListener as listeners. - 翻译：将实现了ApplicationListener的bean添加为监听器
+        # Doesn't affect other listeners, which can be added without being beans. - 翻译：可以在不存在bean的时候添加，不会影响其他监听器
+        >org.springframework.context.support.AbstractApplicationContext.registerListeners
+        # doc文档：
+        # Finish the initialization of this context's bean factory,initializing all remaining singleton beans. - 翻译：完成上下文的beanFactory初始化，初始化剩余的单例bean
+        >org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization
+        # doc文档：
+        #Finish the refresh of this context, invoking the LifecycleProcessor's onRefresh() method and publishing the {@link org.springframework.context.event.ContextRefreshedEvent}.
+        # - 翻译：完成上下文的更新，调用LifecycleProcessor的onRefresh()方法，发布org.springframework.context.event.ContextRefreshedEvent
+        >org.springframework.context.support.AbstractApplicationContext.finishRefresh
+
+1.1 org.springframework.context.support.AbstractApplicationContext.prepareRefresh()
+# doc文档：
+# Prepare this context for refreshing, - 翻译：为更新操作预先准备上下文环境
+# setting its startup date and active flag as well as performing any initialization of property sources. - 翻译：设置启动日志和有效标识以及执行其他的初始化属性
+>org.springframework.context.support.AbstractApplicationContext.prepareRefresh
+
+1.2 org.springframework.context.support.AbstractApplicationContext.obtainFreshBeanFactory()
+# doc文档：
+# Tell the subclass to refresh the internal bean factory. - 翻译：通知子类更新其内部bean Factory
+# return the fresh BeanFactory instance - 返回一个全新的BeanFactory
+>org.springframework.context.support.AbstractApplicationContext.obtainFreshBeanFactory
+    # doc文档：
+    # This implementation performs an actual refresh of this context's underlying bean factory, - 翻译：这个实现(指AbstractRefreshableApplicationContext)执行真正的beanFactory最底层的更新操作。
+    # 翻译：停止之前存在bean factory，为上下文的声明周期初始化一个新的bean factory
+    # shutting down the previous bean factory (if any) and initializing a fresh bean factory for the next phase of the context's lifecycle.
+    >org.springframework.context.support.AbstractRefreshableApplicationContext.refreshBeanFactory
+        >org.springframework.context.support.AbstractRefreshableApplicationContext.createBeanFactory，创建一个BeanFactory实例，实际类型是org.springframework.beans.factory.support.DefaultListableBeanFactory
+        >org.springframework.context.support.AbstractRefreshableApplicationContext.customizeBeanFactory 对创建的BeanFactory做一些定制化配置
+        # doc文档：
+        # Loads the bean definitions via an XmlBeanDefinitionReader. - 翻译：使用XmlBeanDefinitionReader加载bean definitions
+        >org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions
+            # doc文档：
+            # Initialize the bean definition reader used for loading the bean definitions of this context. - 翻译：初始化一个bean definition reader用于加载bean definitions到当前上下文中
+            # Default implementation is empty. - 翻译：默认实现为空
+            # Can be overridden in subclasses, e.g. for turning off XML validation or using a different XmlBeanDefinitionParser implementation. - 翻译：可以被子类重写，例如，为了关闭XML校验或使用一个不同的XmlBeanDefinitionParser解析器实现
+            >org.springframework.context.support.AbstractXmlApplicationContext.initBeanDefinitionReader - 源码中此处默认xml校验为true
+            # doc文档：
+            # Load the bean definitions with the given XmlBeanDefinitionReader. - 翻译：使用给定的XmlBeanDefinitionReader加载bean definitions
+            # The lifecycle of the bean factory is handled by the {@link #refreshBeanFactory} method; - 翻译：bean factory的声明周期被refreshBeanFactory()方法处理
+            # hence this method is just supposed to load and/or register bean definitions. - 翻译：因此这个方法只是用来加载和/或注册bean definitions
+            >org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions
+                >org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions - 此处开始根据xml的location(本案例中是applicationContext.xml)进行加载beanDefinition
+                    # doc文档
+                    # Load bean definitions from the specified resource location. - 翻译：从指定的resource location中加载bean definitions
+                    # The location can also be a location pattern, provided that the ResourceLoader of this bean definition reader is a ResourcePatternResolver. - 翻译：如果bean definition的ResourceLoader是ResourcePatternResolver，那么location可以是一个location表达式(pattern)
+                    >org.springframework.beans.factory.support.AbstractBeanDefinitionReader.loadBeanDefinitions
+                        >org.springframework.beans.factory.xml.XmlBeanDefinitionReader.loadBeanDefinitions - Load bean definitions from the specified XML file. 使用XmlBeanDefinitionReader从特殊的xml文件中加载BeanDefinition
+                            >org.springframework.beans.factory.xml.XmlBeanDefinitionReader.doLoadBeanDefinitions - Actually load bean definitions from the specified XML file.真实执行从XML文件中加载BeanDefinition的方法
+                                >org.springframework.beans.factory.xml.XmlBeanDefinitionReader.registerBeanDefinitions
+                                    >org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader.registerBeanDefinitions
+                                        # doc文档
+                                        # Register each bean definition within the given root {@code <beans/>} element. - 翻译：从 <beans/>节点开始，将注册每一个beanDefinition
+                                        >org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader.doRegisterBeanDefinitions
+                                            # Parse the elements at the root level in the document:"import", "alias", "bean". - 翻译：从文档的根节点解析"import", "alias", "bean"节点
+                                            >org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader.parseBeanDefinitions
+                                                >org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader.parseDefaultElement - 此处我们可以看到已经开始解析<beans>标签
+                                                    # 从<beans>标签开始解析，解析到<bean>标签后，来到processBeanDefinition方法
+                                                    # doc文档：
+                                                    # Process the given bean element, parsing the bean definition and registering it with the registry.
+                                                    # 翻译：处理bean元素，解析并且将其注册
+                                                    >org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader.processBeanDefinition
+                                                        # Register the given bean definition with the given bean factory. 将给定的beanDefinition注册到给定的bean factory中（此处是DefaultListableBeanFactory）
+                                                        >org.springframework.beans.factory.support.BeanDefinitionReaderUtils.registerBeanDefinition
+                                                            # 此处来到我们的BeanFactory：DefaultListableBeanFactory，对bean进行注册
+                                                            # 最终bean是注册到org.springframework.beans.factory.support.DefaultListableBeanFactory.beanDefinitionMap中
+                                                            # beanDefinitionMap是DefaultListableBeanFactory的一个属性，原型是ConcurrentHashMap<beanName,BeanDefinition>
+                                                            >org.springframework.beans.factory.support.DefaultListableBeanFactory.registerBeanDefinition
+    >org.springframework.context.support.AbstractRefreshableApplicationContext.getBeanFactory - 获取上方流程中已经加载完成BeanDefinition的BeanFactory，实际上也就是DefaultListableBeanFactory
+
+1.3 org.springframework.context.support.AbstractApplicationContext.prepareBeanFactory()
+# doc文档：
+# Configure the factory's standard context characteristics, - 翻译：
+# such as the context's ClassLoader and post-processors. - 翻译：配置BeanFactory标准上下文信息，类似于上下文的Classloader和post-processors等
+>org.springframework.context.support.AbstractApplicationContext.prepareBeanFactory 配置BeanFactory一些信息
+
+1.4 org.springframework.context.support.AbstractApplicationContext.postProcessBeanFactory()
+# doc文档：
+# Modify the application context's internal bean factory after its standard initialization. - 翻译：在初始化完BeanFactory的标准上下文信息后，修改上下文的内部beanFactory
+# All bean definitions will have been loaded,but no beans will have been instantiated yet. - 翻译：所有的bean definitions将会被加载，但是到目前为止没有bean被实例化
+# This allows for registering special BeanPostProcessors etc in certain ApplicationContext implementations. - 翻译：这允许在特殊的ApplicationContext实现中注册特殊的BeanPostProcessors等操作
+>org.springframework.context.support.AbstractApplicationContext.postProcessBeanFactory
+
+1.5 org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors()
+# doc文档：
+# Instantiate and invoke all registered BeanFactoryPostProcessor beans,- 翻译：实例化所有已经注册的BeanFactoryPostProcessor，并且调用其postProcessBeanFactory()方法，
+# respecting explicit order if given.  - 翻译如果注册的postProcessBeanFactory有Order(org.springframework.core.annotation.Order)注解，则会严格按照Order定义的顺序来执行
+>org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors
+    # org.springframework.beans.factory.config.BeanFactoryPostProcessor的doc文档
+    # Factory hook that allows for custom modification of an application context's bean definitions, - 翻译：允许用户自定义修改application context中的bean definitions的工厂钩子
+    # adapting the bean property values of the context's underlying bean factory. - 翻译：调整上下文的基础bean工厂的bean属性值
+    # Useful for custom config files targeted at system administrators that override bean properties configured in the application context.
+    # See {@link PropertyResourceConfigurer} and its concrete implementations for out-of-the-box solutions that address such configuration needs.
+    # A {@code BeanFactoryPostProcessor} may interact with and modify bean definitions,but never bean instances.
+    # Doing so may cause premature bean instantiation, violating the container and causing unintended side-effects.
+    # If bean instance interaction is required, consider implementing {@link BeanPostProcessor} instead.
+    >org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors 在此处我们可以看到spring会调用所有的BeanFactoryPostProcessor的postProcessBeanDefinitionRegistry方法
+
+
+1.6 org.springframework.context.support.AbstractApplicationContext.registerBeanPostProcessors()
+# doc文档：
+# Instantiate and register all BeanPostProcessor beans, - 翻译：实例化并注册所有的BeanPostProcessor，
+# respecting explicit order if given. - 翻译：如果BeanPostProcessor有Order(org.springframework.core.annotation.Order)注解，则会严格按照定义的顺序执行
+>org.springframework.context.support.AbstractApplicationContext.registerBeanPostProcessors
+
+1.7 org.springframework.context.support.AbstractApplicationContext.initMessageSource()
+# doc文档：
+# Initialize the MessageSource.Use parent's if none defined in this context. - 翻译：初始化MessageSource，如果没有定义就会默认使用父类的
+>org.springframework.context.support.AbstractApplicationContext.initMessageSource
+
+1.8 org.springframework.context.support.AbstractApplicationContext.initApplicationEventMulticaster()
+# doc文档：
+# Initialize the ApplicationEventMulticaster. - 翻译：初始化ApplicationEventMulticaster
+# Uses SimpleApplicationEventMulticaster if none defined in the context. - 翻译：如果没有定义则会使用 SimpleApplicationEventMulticaster
+>org.springframework.context.support.AbstractApplicationContext.initApplicationEventMulticaster
+
+1.9 org.springframework.context.support.AbstractApplicationContext.onRefresh()
+# doc文档：
+# Template method which can be overridden to add context-specific refresh work. - 翻译：可以被重写的模板方法，在refresh增加一些特殊操作
+# Called on initialization of special beans, before instantiation of singletons. - 翻译：在实例化单例之前，初始化特殊的bean的时候被调用
+# This implementation is empty. - 翻译：他的实现类是空
+>org.springframework.context.support.AbstractApplicationContext.onRefresh
+
+2.0 org.springframework.context.support.AbstractApplicationContext.registerListeners()
+# doc文档：
+# Add beans that implement ApplicationListener as listeners. - 翻译：将实现了ApplicationListener的bean添加为监听器
+# Doesn't affect other listeners, which can be added without being beans. - 翻译：可以在不存在bean的时候添加，不会影响其他监听器
+>org.springframework.context.support.AbstractApplicationContext.registerListeners
+
+2.1 org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization()
+# doc文档：
+# Finish the initialization of this context's bean factory,initializing all remaining singleton beans. - 翻译：完成上下文的beanFactory初始化，初始化剩余的单例bean
+>org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization
+
+2.2 org.springframework.context.support.AbstractApplicationContext.finishRefresh()
+# doc文档：
+#Finish the refresh of this context, invoking the LifecycleProcessor's onRefresh() method and publishing the {@link org.springframework.context.event.ContextRefreshedEvent}.
+# - 翻译：完成上下文的更新，调用LifecycleProcessor的onRefresh()方法，发布org.springframework.context.event.ContextRefreshedEvent
+>org.springframework.context.support.AbstractApplicationContext.finishRefresh
